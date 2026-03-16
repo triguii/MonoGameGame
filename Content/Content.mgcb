@@ -31,3 +31,42 @@
 /processor:TexturePackerProcessor
 /build:images/adventurer.json
 
+#begin maps/Animated water tiles-transp.tsx
+/copy:maps/Animated water tiles-transp.tsx
+
+#begin maps/Animated water tiles.tsx
+/importer:TilemapTilesetImporter
+/processor:TilemapTilesetProcessor
+/build:maps/Animated water tiles.tsx
+
+#begin maps/Atlas-Props-Sprites.tsx
+/importer:TilemapTilesetImporter
+/processor:TilemapTilesetProcessor
+/build:maps/Atlas-Props-Sprites.tsx
+
+#begin maps/Atlas-Props.tsx
+/importer:TilemapTilesetImporter
+/processor:TilemapTilesetProcessor
+/build:maps/Atlas-Props.tsx
+
+#begin maps/Grass Land - tileset-cliff.tsx
+/importer:TilemapTilesetImporter
+/processor:TilemapTilesetProcessor
+/build:maps/Grass Land - tileset-cliff.tsx
+
+#begin maps/Grass Land - tileset-transp-cliff.tsx
+/importer:TilemapTilesetImporter
+/processor:TilemapTilesetProcessor
+/build:maps/Grass Land - tileset-transp-cliff.tsx
+
+#begin maps/Sample Map.tmx
+/importer:TiledTilemapImporter
+/processor:TilemapProcessor
+/processorParam:LevelName=
+/build:maps/Sample Map.tmx
+
+#begin maps/Terrain.tsx
+/importer:TilemapTilesetImporter
+/processor:TilemapTilesetProcessor
+/build:maps/Terrain.tsx
+

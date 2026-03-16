@@ -20,7 +20,7 @@ namespace PilotGame
 
             base.Initialize();
 
-            ChangeScene(new MainGameScene());
+            ChangeScene(new MainGameScene(Window));
         }
 
         protected override void LoadContent()
@@ -32,7 +32,7 @@ namespace PilotGame
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
-
+            
             // TODO: Add your update logic here
 
             base.Update(gameTime);
