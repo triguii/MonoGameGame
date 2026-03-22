@@ -1,26 +1,29 @@
-﻿using PilotGame.Controllers;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended;
 using MonoGame.Extended.Animations;
 using MonoGame.Extended.Graphics;
+using MonoGame.Extended.Tilemaps;
+using MonoGame.Extended.Tilemaps.Rendering;
 using MonoGame.Extended.Timers;
+using MonoGame.Extended.ViewportAdapters;
 using MonoGameLibrary;
+using PilotGame.Controllers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection.Metadata;
-using MonoGame.Extended.Tilemaps;
-using MonoGame.Extended.Tilemaps.Rendering;
-using MonoGame.Extended;
-using MonoGame.Extended.ViewportAdapters;
 
 namespace PilotGame.GameObjects;
 
 public class Map
 {
     private Tilemap _tilemap;
-    private TilemapSpriteBatchRenderer _renderer;
+    private TilemapRenderer _renderer;
+
+    private string[] _backgroundLayers;
+
 
     public Rectangle worldBounds { get; set; }
 
@@ -33,10 +36,17 @@ public class Map
     public void LoadContent()
     {
 
+        _backgroundLayers = new string[] { "terrain0", "terrain1", "terrain2", "fences", "water",
+                                           "grass_to_water_platform", "grass_platform","terrain3", "fences2" };
+
         _tilemap = Core.Content.Load<Tilemap>("maps/Sample Map");
 
-        _renderer = new TilemapSpriteBatchRenderer();
+        _renderer = new TilemapRenderer(Core.GraphicsDevice);
         _renderer.LoadTilemap(_tilemap);
+
+        // Define layer groups for rendering order and optimization
+        _renderer.DefineLayerGroup("Background", _backgroundLayers);
+
 
         worldBounds = _tilemap.WorldBounds; 
 
@@ -50,8 +60,17 @@ public class Map
     public void Draw(GameTime gameTime, OrthographicCamera camera)
     {
 
-        _renderer.Draw(Core.SpriteBatch, camera);
+        _renderer.BeginDraw(camera);
 
+        _renderer.DrawLayerGroup("Background");
+
+        _renderer.EndDraw();
+
+    }
+
+    public void UnloadContent()
+    {
+        _renderer?.Dispose();
     }
 
 

@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<PropsData>
+	<Props>
+		<Prop name="Animated_Tree1" x ="100" y="100" animated="true"/>
+		
+		<Prop name="Animated_Tree1" x ="700" y="500" animated="true"/>
+		<Prop name="Animated_Tree1" x ="800" y="500" animated="true"/>
+		<Prop name="Animated_Tree1" x ="200" y="500" animated="true"/>
+		<Prop name="Animated_Tree1" x ="100" y="100" animated="true"/>
+		<Prop name="Animated_Tree1" x ="500" y="400" animated="true"/>
+		
+
+	</Props>
+</PropsData>
+

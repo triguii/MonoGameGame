@@ -31,6 +31,11 @@
 /processor:TexturePackerProcessor
 /build:images/adventurer.json
 
+#begin maps/Animated Tree1.tsx
+/importer:TilemapTilesetImporter
+/processor:TilemapTilesetProcessor
+/build:maps/Animated Tree1.tsx
+
 #begin maps/Animated water tiles-transp.tsx
 /copy:maps/Animated water tiles-transp.tsx
 
@@ -38,11 +43,6 @@
 /importer:TilemapTilesetImporter
 /processor:TilemapTilesetProcessor
 /build:maps/Animated water tiles.tsx
-
-#begin maps/Atlas-Props-Sprites.tsx
-/importer:TilemapTilesetImporter
-/processor:TilemapTilesetProcessor
-/build:maps/Atlas-Props-Sprites.tsx
 
 #begin maps/Atlas-Props.tsx
 /importer:TilemapTilesetImporter
@@ -59,11 +59,31 @@
 /processor:TilemapTilesetProcessor
 /build:maps/Grass Land - tileset-transp-cliff.tsx
 
+#begin maps/props/props-atlas-texture.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:maps/props/props-atlas-texture.png;maps/props/props-atlas-texture
+
+#begin maps/props/props-atlas.json
+/importer:TexturePackerJsonImporter
+/processor:TexturePackerProcessor
+/build:maps/props/props-atlas.json;maps/props/props-atlas
+
 #begin maps/Sample Map.tmx
 /importer:TiledTilemapImporter
 /processor:TilemapProcessor
 /processorParam:LevelName=
 /build:maps/Sample Map.tmx
+
+#begin maps/sampleMapProps.xml
+/copy:maps/sampleMapProps.xml
 
 #begin maps/Terrain.tsx
 /importer:TilemapTilesetImporter

@@ -1,10 +1,11 @@
-﻿using PilotGame.Controllers;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended.Animations;
+using MonoGame.Extended.ECS;
 using MonoGame.Extended.Graphics;
 using MonoGame.Extended.Timers;
 using MonoGameLibrary;
+using PilotGame.Controllers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,9 +14,8 @@ using System.Reflection.Metadata;
 
 namespace PilotGame.GameObjects;
 
-public class Player
+public class Player : Entity
 {
-    public Vector2 Position { get; private set; }
     private Vector2 _dir;
 
     public Map currentMap { get; set; }
@@ -39,15 +39,16 @@ public class Player
 
 
     public void Initialize(Map map)
-    {
-        Position = new Vector2(450, 270);
+    {   
+        base.Initialize(new Vector2(450, 270));
         _dir = new Vector2(1, 1);
         _characterState = CharacterState.Idle;
         currentMap = map;
 
+
     }
 
-    public void LoadContent()
+    public override void LoadContent()
     {
         _playerAtlas = Core.Content.Load<Texture2DAtlas>("images/adventurer");
         _playerSpriteSheet = new SpriteSheet("images/adventurer-texture", _playerAtlas);
@@ -57,18 +58,17 @@ public class Player
 
     }
 
-    public void Update(GameTime gameTime)
+    public override void Update(GameTime gameTime)
     {
         _playerSprite.Update(gameTime);
 
         handleInput(gameTime);
     }
 
-    public void Draw(GameTime gameTime)
+    public override void Draw(GameTime gameTime, float depth)
     {
-
+        _playerSprite.Depth = depth;
         Core.SpriteBatch.Draw(_playerSprite, Position, 0, new Vector2(_spriteScale));
-
 
     }
 
@@ -109,6 +109,7 @@ public class Player
 
         _playerSprite = new AnimatedSprite(_playerSpriteSheet, "idle");
         _playerSprite.Origin = new Vector2 (_playerSprite.Size.X / 2f, _playerSprite.Size.Y / 2f);
+        Size = _playerSprite.Size;
 
 
     }

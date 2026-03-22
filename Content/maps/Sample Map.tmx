@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="40" height="20" tilewidth="32" tileheight="32" infinite="0" nextlayerid="14" nextobjectid="143">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="40" height="20" tilewidth="32" tileheight="32" infinite="0" nextlayerid="15" nextobjectid="172">
  <tileset firstgid="1" source="Grass Land - tileset-cliff.tsx"/>
  <tileset firstgid="241" source="Animated water tiles-transp.tsx"/>
  <tileset firstgid="977" source="Terrain.tsx"/>
  <tileset firstgid="3515" source="Animated water tiles.tsx"/>
  <tileset firstgid="4251" source="Atlas-Props-Sprites.tsx"/>
  <tileset firstgid="6451" source="Atlas-Props.tsx"/>
+ <tileset firstgid="9103" source="Animated Tree1.tsx"/>
  <layer id="1" name="terrain0" width="40" height="20">
   <data encoding="csv">
 3321,3321,3321,3321,3321,3321,1154,1158,3321,3321,3321,3321,3321,3321,3321,3321,3321,3321,3321,3321,3321,3321,3321,3321,3321,3321,3321,3321,3321,3321,3321,3321,3321,3321,1100,1048,1048,1104,3321,3321,

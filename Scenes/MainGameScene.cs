@@ -1,12 +1,17 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Microsoft.VisualBasic;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended;
+using MonoGame.Extended.Timers;
 using MonoGame.Extended.ViewportAdapters;
 using MonoGameLibrary;
 using MonoGameLibrary.Graphics;
 using MonoGameLibrary.Scenes;
+using PilotGame.Controllers;
 using PilotGame.GameObjects;
+using System;
+using System.Collections.Generic;
 
 namespace PilotGame.Scenes;
 
@@ -24,6 +29,7 @@ public class MainGameScene : Scene
     public Map currentMap { get; private set; }
     private GameWindow _window;
 
+    private List<Entity> _entities;
     public MainGameScene(GameWindow window)
     {
         _window = window;
@@ -33,14 +39,22 @@ public class MainGameScene : Scene
     {
         base.Initialize();
 
+        currentMap.Initialize();
+
         BoxingViewportAdapter viewportAdapter = new BoxingViewportAdapter(_window, Core.GraphicsDevice, 690, 360);
+        
         _player.Initialize(currentMap);
+
 
         _camera = new OrthographicCamera(viewportAdapter);
         _camera.Zoom = 1.0f;
         _camera.EnableWorldBounds(currentMap.worldBounds);
         // Enable zoom clamping to prevent viewing beyond the world
         _camera.IsZoomClampedToWorldBounds = true;
+
+
+
+
 
     }
 
@@ -49,17 +63,37 @@ public class MainGameScene : Scene
         base.LoadContent();
 
         _player = new Player();
-        _player.LoadContent();
+
+        _entities = new List<Entity>();
+        _entities.Add(_player);
+
+        //Inicializar props del mapa
+        _entities.AddRange(PropController.InitialitzeMap("maps/sampleMapProps"));
+
+        //Load entities
+        foreach (Entity entity in _entities)
+        {
+
+            entity.LoadContent();
+
+        }
 
         currentMap = new Map();
         currentMap.LoadContent();
-
 
     }
 
     public override void Update(GameTime gameTime)
     {
-        _player.Update(gameTime);
+
+        //Update entities
+        foreach (Entity entity in _entities)
+        {
+
+            entity.Update(gameTime);
+
+        }
+
         currentMap.Update(gameTime);
 
         _camera.LookAt(_player.Position);
@@ -76,12 +110,21 @@ public class MainGameScene : Scene
 
         currentMap.Draw(gameTime, _camera);
 
-        Core.SpriteBatch.Begin(samplerState: SamplerState.PointClamp, transformMatrix : transformMatrix);
+        Core.SpriteBatch.Begin(sortMode: SpriteSortMode.FrontToBack, samplerState: SamplerState.PointClamp, transformMatrix : transformMatrix);
 
+        
+        //  Draw entities sorted by their Y position to create a simple depth effect.
 
-        _player.Draw(gameTime);
+        foreach (Entity entity in _entities)
+        {
+            // Map the Y position to a 0.0 - 1.0 float. 
+            // Clamp it just to be safe so it never exceeds 1.0f or drops below 0.0f.
+            float depth = MathHelper.Clamp((entity.Position.Y) / currentMap.worldBounds.Size.Y, 0f, 1f);
 
+            entity.Draw(gameTime, depth);
+        }
 
+        
         // Always end the sprite batch when finished.
         Core.SpriteBatch.End();
 
@@ -90,6 +133,7 @@ public class MainGameScene : Scene
     public override void UnloadContent()
     {
         _player.UnloadContent();
+        currentMap.UnloadContent();
     }
 
 
