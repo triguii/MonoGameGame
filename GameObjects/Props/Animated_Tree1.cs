@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using MonoGame.Extended;
 using MonoGame.Extended.Graphics;
 using MonoGameLibrary;
 using PilotGame.Controllers;
@@ -15,6 +16,11 @@ public class Animated_Tree1 : Prop
 
     private TimeSpan _animationDuration = TimeSpan.FromSeconds(0.175);
     private AnimatedSprite _sprite;
+
+    private new Vector2 hitboxOffset = new Vector2(-40, 0);
+    private new SizeF hitboxSize = new SizeF(40, 20);
+
+
 
     public override void LoadContent()
     {
@@ -34,6 +40,8 @@ public class Animated_Tree1 : Prop
         });
 
         _sprite = new AnimatedSprite(PropController.propsSheet, "Animated_Tree1");
+        Bounds = new RectangleF(Position + hitboxOffset, hitboxSize);
+
         _sprite.Origin = new Vector2(_sprite.Size.X / 1.5f, _sprite.Size.Y / 1.5f);
         Size = _sprite.Size;
 
@@ -45,7 +53,8 @@ public class Animated_Tree1 : Prop
     }
 
     public override void Draw(GameTime gameTime, float depth)
-    {
+    {   
+        base.Draw(gameTime, depth);
         _sprite.Depth = depth;
         Core.SpriteBatch.Draw(_sprite, Position, 0, new Vector2(1f));
     }

@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended;
+using MonoGame.Extended.Collisions;
 using MonoGame.Extended.Timers;
 using MonoGame.Extended.ViewportAdapters;
 using MonoGameLibrary;
@@ -30,6 +31,7 @@ public class MainGameScene : Scene
     private GameWindow _window;
 
     private List<Entity> _entities;
+    private CollisionComponent _collisionComponent;
     public MainGameScene(GameWindow window)
     {
         _window = window;
@@ -42,18 +44,16 @@ public class MainGameScene : Scene
         currentMap.Initialize();
 
         BoxingViewportAdapter viewportAdapter = new BoxingViewportAdapter(_window, Core.GraphicsDevice, 690, 360);
-        
+
         _player.Initialize(currentMap);
 
 
         _camera = new OrthographicCamera(viewportAdapter);
         _camera.Zoom = 1.0f;
         _camera.EnableWorldBounds(currentMap.worldBounds);
+
         // Enable zoom clamping to prevent viewing beyond the world
         _camera.IsZoomClampedToWorldBounds = true;
-
-
-
 
 
     }
@@ -70,16 +70,25 @@ public class MainGameScene : Scene
         //Inicializar props del mapa
         _entities.AddRange(PropController.InitialitzeMap("maps/sampleMapProps"));
 
+
+        currentMap = new Map();
+        currentMap.LoadContent();
+
+        //Add collisions from map to entities list
+        _entities.AddRange(currentMap.SetCollisions());
+
+
+        //Gestion collisions
+        _collisionComponent = new CollisionComponent(new RectangleF(0, 0, currentMap.worldBounds.Width, currentMap.worldBounds.Height));
+
         //Load entities
         foreach (Entity entity in _entities)
         {
 
             entity.LoadContent();
+            _collisionComponent.Insert(entity);
 
         }
-
-        currentMap = new Map();
-        currentMap.LoadContent();
 
     }
 
@@ -95,6 +104,7 @@ public class MainGameScene : Scene
         }
 
         currentMap.Update(gameTime);
+        _collisionComponent.Update(gameTime);
 
         _camera.LookAt(_player.Position);
 
@@ -113,7 +123,7 @@ public class MainGameScene : Scene
         Core.SpriteBatch.Begin(sortMode: SpriteSortMode.FrontToBack, samplerState: SamplerState.PointClamp, transformMatrix : transformMatrix);
 
         
-        //  Draw entities sorted by their Y position to create a simple depth effect.
+        //  Draw entities sorted by their Y position.
 
         foreach (Entity entity in _entities)
         {

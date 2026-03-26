@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 using MonoGame.Extended.Animations;
 using MonoGame.Extended.Graphics;
+using MonoGame.Extended.Shapes;
 using MonoGame.Extended.Tilemaps;
 using MonoGame.Extended.Tilemaps.Rendering;
 using MonoGame.Extended.Timers;
@@ -50,6 +51,7 @@ public class Map
 
         worldBounds = _tilemap.WorldBounds; 
 
+
     }
 
     public void Update(GameTime gameTime)
@@ -71,6 +73,43 @@ public class Map
     public void UnloadContent()
     {
         _renderer?.Dispose();
+    }
+
+    public List<CollisionObject> SetCollisions()
+    {
+        // Set Collisions of the map based on collisions layer in Tiled
+        List<CollisionObject> collisionsList = new List<CollisionObject>();
+
+
+        TilemapObjectLayer collisionsLayer = _tilemap.Layers["collisions"] as TilemapObjectLayer;
+
+        foreach (TilemapObject obj in collisionsLayer.Objects)
+        {
+            CollisionObject collisionObject;
+
+            switch (obj)
+            {
+                case TilemapRectangleObject rect:
+                    // Use rect.Width and rect.Height for collision bounds
+                    collisionObject = new CollisionObject(new RectangleF(rect.Position, rect.Size));
+                    collisionsList.Add(collisionObject);
+
+                    break;
+
+                case TilemapEllipseObject elli:
+
+                    collisionObject =  new CollisionObject(new CircleF(elli.Center, elli.RadiusX));
+                    collisionsList.Add(collisionObject);
+
+                    break;
+
+
+
+            }
+        }
+
+        return collisionsList;
+
     }
 
 

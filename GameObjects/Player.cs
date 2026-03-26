@@ -1,6 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended;
 using MonoGame.Extended.Animations;
+using MonoGame.Extended.Collisions;
 using MonoGame.Extended.ECS;
 using MonoGame.Extended.Graphics;
 using MonoGame.Extended.Timers;
@@ -21,6 +23,12 @@ public class Player : Entity
     public Map currentMap { get; set; }
 
     private const float _speed = 200f;
+
+    //Hitbox
+
+    private new Vector2 hitboxOffset = new Vector2(-10, -5);
+    private new SizeF hitboxSize = new SizeF(20, 30);
+
 
     private enum CharacterState
     {
@@ -63,12 +71,21 @@ public class Player : Entity
         _playerSprite.Update(gameTime);
 
         handleInput(gameTime);
+
+        //Update bounds position
+        Bounds.Position = Position + hitboxOffset;
+
     }
 
     public override void Draw(GameTime gameTime, float depth)
     {
+        //Only to draw collision bounds for testing, remove later
+        base.Draw(gameTime, depth);
+
+
         _playerSprite.Depth = depth;
         Core.SpriteBatch.Draw(_playerSprite, Position, 0, new Vector2(_spriteScale));
+
 
     }
 
@@ -108,6 +125,11 @@ public class Player : Entity
 
 
         _playerSprite = new AnimatedSprite(_playerSpriteSheet, "idle");
+
+        //Set hitbox
+
+        Bounds = new RectangleF(Position + hitboxOffset, hitboxSize);
+
         _playerSprite.Origin = new Vector2 (_playerSprite.Size.X / 2f, _playerSprite.Size.Y / 2f);
         Size = _playerSprite.Size;
 
@@ -172,6 +194,7 @@ public class Player : Entity
         Vector2 nextPositionVector = _dir * _speed * deltaTime;
         const int collisionBuffer = 10;
 
+        // Check if the next position is within the world bounds, considering a buffer for collision, or if it is colliding
         if (_dir == Vector2.Zero || !currentMap.worldBounds.Contains(Position + nextPositionVector + (_dir * collisionBuffer))) {
             if (_characterState == CharacterState.Walking)
             {
@@ -207,6 +230,14 @@ public class Player : Entity
             }
 
         };
+
+    }
+
+    public override void OnCollision(CollisionEventArgs collisionInfo)
+    {
+
+        Bounds.Position -= collisionInfo.PenetrationVector;
+        Position -= collisionInfo.PenetrationVector;
 
     }
 

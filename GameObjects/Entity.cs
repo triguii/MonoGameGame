@@ -1,5 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
+using MonoGame.Extended;
+using MonoGame.Extended.Collisions;
 using MonoGameLibrary;
 using System;
 using System.Collections.Generic;
@@ -10,10 +12,15 @@ using System.Threading.Tasks;
 
 namespace PilotGame.GameObjects;
 
-public class Entity
+public class Entity : ICollisionActor
 {
     public Vector2 Position { get; set; }
     public Point Size { get; set; }
+    public IShapeF Bounds { get; set; }
+
+    public Vector2 hitboxOffset = new Vector2(0, 0);
+    public SizeF hitboxSize = new SizeF(0, 0);
+
 
     public Entity()
     {
@@ -30,11 +37,20 @@ public class Entity
 
     }
 
-    public virtual void Draw(GameTime gameTime, float depth) { 
-    
+    public virtual void Draw(GameTime gameTime, float depth) {
+
+        //Draw collision bounds for debugging purposes
+
+        //Core.SpriteBatch.DrawRectangle((RectangleF)Bounds, Color.Red, 1, depth + 0.01f);
+
     }
 
     public virtual void Update(GameTime gameTime)
+    {
+
+    }
+
+    public virtual void OnCollision(CollisionEventArgs collisionInfo)
     {
 
     }
