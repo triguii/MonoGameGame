@@ -14,13 +14,10 @@ using System.Threading.Tasks;
 
 namespace PilotGame.GameObjects;
 
-public class Prop : Entity
+public abstract class Prop : Entity
 {
 
-    public void Initialize()
-    {
 
-    }
     public override void LoadContent()
     {
         

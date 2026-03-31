@@ -1,4 +1,6 @@
-﻿using Microsoft.VisualBasic;
+﻿using Gum.DataTypes;
+using Gum.Managers;
+using Microsoft.VisualBasic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -6,11 +8,13 @@ using MonoGame.Extended;
 using MonoGame.Extended.Collisions;
 using MonoGame.Extended.Timers;
 using MonoGame.Extended.ViewportAdapters;
+using MonoGameGum;
 using MonoGameLibrary;
 using MonoGameLibrary.Graphics;
 using MonoGameLibrary.Scenes;
 using PilotGame.Controllers;
 using PilotGame.GameObjects;
+using PilotGame.GameObjects.Enemies;
 using System;
 using System.Collections.Generic;
 
@@ -32,9 +36,16 @@ public class MainGameScene : Scene
 
     private List<Entity> _entities;
     private CollisionComponent _collisionComponent;
+
+    //UI Manager
+    GumService GumUI => GumService.Default;
+    GumProjectSave GumProject;
+
     public MainGameScene(GameWindow window)
     {
+        
         _window = window;
+
     }
 
     public override void Initialize()
@@ -45,8 +56,12 @@ public class MainGameScene : Scene
 
         BoxingViewportAdapter viewportAdapter = new BoxingViewportAdapter(_window, Core.GraphicsDevice, 690, 360);
 
-        _player.Initialize(currentMap);
+        _player.Initialize(this);
 
+        //Initialize UI
+        GumProject = GumUI.Initialize(Core.GraphicsDevice, "GumUI/PilotGameProject.gumx");
+        var screen = GumProject.Screens.Find(item => item.Name  == "mainGameUI").ToGraphicalUiElement();
+        screen.AddToRoot();
 
         _camera = new OrthographicCamera(viewportAdapter);
         _camera.Zoom = 1.0f;
@@ -68,7 +83,15 @@ public class MainGameScene : Scene
         _entities.Add(_player);
 
         //Inicializar props del mapa
-        _entities.AddRange(PropController.InitialitzeMap("maps/sampleMapProps"));
+        _entities.AddRange(PropController.InitialitzeMap("maps/sampleMapProps", this));
+
+
+        //Test enemy
+
+        Enemy enemy = new Goblin();
+        enemy.Initialize(new Vector2(400, 200), this);
+        _entities.Add(enemy);
+
 
 
         currentMap = new Map();
@@ -108,6 +131,9 @@ public class MainGameScene : Scene
 
         _camera.LookAt(_player.Position);
 
+        //Update UI
+        GumUI.Update(gameTime);
+
     }
 
     public override void Draw(GameTime gameTime)
@@ -138,6 +164,9 @@ public class MainGameScene : Scene
         // Always end the sprite batch when finished.
         Core.SpriteBatch.End();
 
+        //Update UI
+        GumUI.Draw();
+
     }
 
     public override void UnloadContent()
@@ -146,7 +175,18 @@ public class MainGameScene : Scene
         currentMap.UnloadContent();
     }
 
+    public void AddEntity(Entity entity)
+    {
+        _entities.Add(entity);
+        entity.LoadContent();
+        _collisionComponent.Insert(entity);
+    }
 
+    public void RemoveEntity(Entity entity)
+    {
+        _entities.Remove(entity);
+        _collisionComponent.Remove(entity);
+    }
 
 }
 

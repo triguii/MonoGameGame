@@ -7,6 +7,7 @@ using MonoGame.Extended.ECS;
 using MonoGame.Extended.Graphics;
 using MonoGame.Extended.Timers;
 using MonoGameLibrary;
+using MonoGameLibrary.Scenes;
 using PilotGame.Controllers;
 using System;
 using System.Collections.Generic;
@@ -20,9 +21,9 @@ public class Player : Entity
 {
     private Vector2 _dir;
 
-    public Map currentMap { get; set; }
-
     private const float _speed = 200f;
+
+    private Vector2 _oldPosition;
 
     //Hitbox
 
@@ -46,13 +47,11 @@ public class Player : Entity
     private TimeSpan _animationDuration = TimeSpan.FromSeconds(0.175);
 
 
-    public void Initialize(Map map)
+    public void Initialize(Scene scene)
     {   
-        base.Initialize(new Vector2(450, 270));
+        base.Initialize(new Vector2(450, 270), scene);
         _dir = new Vector2(1, 1);
         _characterState = CharacterState.Idle;
-        currentMap = map;
-
 
     }
 
@@ -62,6 +61,13 @@ public class Player : Entity
         _playerSpriteSheet = new SpriteSheet("images/adventurer-texture", _playerAtlas);
 
         setAnimations();
+
+        //Set hitbox
+
+        Bounds = new RectangleF(Position + hitboxOffset, hitboxSize);
+
+        _playerSprite.Origin = new Vector2(_playerSprite.Size.X / 2f, _playerSprite.Size.Y / 2f);
+        Size = _playerSprite.Size;
 
 
     }
@@ -126,13 +132,6 @@ public class Player : Entity
 
         _playerSprite = new AnimatedSprite(_playerSpriteSheet, "idle");
 
-        //Set hitbox
-
-        Bounds = new RectangleF(Position + hitboxOffset, hitboxSize);
-
-        _playerSprite.Origin = new Vector2 (_playerSprite.Size.X / 2f, _playerSprite.Size.Y / 2f);
-        Size = _playerSprite.Size;
-
 
     }
 
@@ -192,24 +191,13 @@ public class Player : Entity
 
         var deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
         Vector2 nextPositionVector = _dir * _speed * deltaTime;
-        const int collisionBuffer = 10;
-
-        // Check if the next position is within the world bounds, considering a buffer for collision, or if it is colliding
-        if (_dir == Vector2.Zero || !currentMap.worldBounds.Contains(Position + nextPositionVector + (_dir * collisionBuffer))) {
-            if (_characterState == CharacterState.Walking)
-            {
-                _playerSprite.SetAnimation("idle");
-                _characterState = CharacterState.Idle;
-            }
-            return;
-        }
 
         if (_characterState != CharacterState.Walking)
         {
             _characterState = CharacterState.Walking;
             _playerSprite.SetAnimation("walk");
         }
-
+        _oldPosition = Position;
         Position += nextPositionVector;
 
         _dir = Vector2.Zero;
@@ -237,7 +225,14 @@ public class Player : Entity
     {
 
         Bounds.Position -= collisionInfo.PenetrationVector;
+
         Position -= collisionInfo.PenetrationVector;
+
+        if (_characterState == CharacterState.Walking && _oldPosition == Position)
+        {
+            _playerSprite.SetAnimation("idle");
+            _characterState = CharacterState.Idle;
+        }
 
     }
 

@@ -1,8 +1,13 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Gum.DataTypes;
+using Gum.Forms;
+using Gum.Forms.Controls;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MonoGameGum;
 using MonoGameLibrary;
 using PilotGame.Scenes;
+
 
 namespace PilotGame
 {
@@ -20,6 +25,9 @@ namespace PilotGame
 
             base.Initialize();
 
+
+
+
             ChangeScene(new MainGameScene(Window));
         }
 
@@ -32,7 +40,7 @@ namespace PilotGame
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
-            
+
             // TODO: Add your update logic here
 
             base.Update(gameTime);

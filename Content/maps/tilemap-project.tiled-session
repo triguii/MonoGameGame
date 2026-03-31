@@ -40,11 +40,11 @@
             "scaleInDock": 1
         },
         "Sample Map.tmx": {
-            "scale": 1,
+            "scale": 0.75,
             "selectedLayer": 9,
             "viewCenter": {
-                "x": 496.5,
-                "y": 177
+                "x": 699.3333333333333,
+                "y": 174.66666666666669
             }
         },
         "Sample Map.tmx#Animated water tiles": {

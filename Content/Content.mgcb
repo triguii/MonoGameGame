@@ -31,6 +31,23 @@
 /processor:TexturePackerProcessor
 /build:images/adventurer.json
 
+#begin images/enemy1-texture.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:images/enemy1-texture.png
+
+#begin images/enemy1.json
+/importer:TexturePackerJsonImporter
+/processor:TexturePackerProcessor
+/build:images/enemy1.json
+
 #begin maps/Animated Tree1.tsx
 /importer:TilemapTilesetImporter
 /processor:TilemapTilesetProcessor

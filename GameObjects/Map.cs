@@ -28,7 +28,6 @@ public class Map
 
     public Rectangle worldBounds { get; set; }
 
-
     public void Initialize()
     {
 

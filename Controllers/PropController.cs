@@ -4,6 +4,7 @@ using MonoGame.Extended.Animations;
 using MonoGame.Extended.Graphics;
 using MonoGame.Extended.Timers;
 using MonoGameLibrary;
+using MonoGameLibrary.Scenes;
 using PilotGame.Controllers;
 using PilotGame.GameObjects;
 using PilotGame.GameObjects.Props;
@@ -27,7 +28,7 @@ public static class PropController
     public static SpriteSheet propsSheet = new SpriteSheet("maps/props/props-atlas-texture", propsAtlas);
 
 
-    public static List<Prop> InitialitzeMap(String mapDirectory)
+    public static List<Prop> InitialitzeMap(String mapDirectory, Scene scene)
     {
         List<Prop> propsList = new List<Prop>();
         string filePath = Path.Combine(Core.Content.RootDirectory, mapDirectory + ".xml");
@@ -60,7 +61,7 @@ public static class PropController
                             object instance = Activator.CreateInstance(propType);
 
                             dynamic propInstance = instance;
-                            propInstance.Initialize(new Vector2(x, y));
+                            propInstance.Initialize(new Vector2(x, y), scene);
                             propsList.Add(propInstance);
                         }
                     }
