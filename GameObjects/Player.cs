@@ -9,10 +9,12 @@ using MonoGame.Extended.Timers;
 using MonoGameLibrary;
 using MonoGameLibrary.Scenes;
 using PilotGame.Controllers;
+using PilotGame.Scenes;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Reflection.Metadata;
 
 namespace PilotGame.GameObjects;
@@ -23,7 +25,8 @@ public class Player : Entity
 
     private const float _speed = 200f;
 
-    private Vector2 _oldPosition;
+    private float _maxHealth = 100f;
+    private float _currentHealth = 100f;
 
     //Hitbox
 
@@ -31,18 +34,46 @@ public class Player : Entity
     private new SizeF hitboxSize = new SizeF(20, 30);
 
 
-    private enum CharacterState
+    public enum CharacterState
     {
         Idle,
         Walking,
-        Attacking
+        Attacking,
+        Damaged
     }
+
     private CharacterState _characterState;
+    public CharacterState characterState
+    {
+        get { return _characterState; }
+        set
+        {
+            // Only trigger if the value is ACTUALLY changing
+            if (_characterState != value)
+            {
+                _characterState = value;
+
+                // Trigger the internal method/event
+                OnStateChanged(_characterState);
+            }
+        }
+    }
+
     //Esto usa la libreria de Monogame.Extended y no la propia porque es lo mismo solo que mejor mantenida 
     private Texture2DAtlas _playerAtlas;
     private SpriteSheet _playerSpriteSheet;
     private AnimatedSprite _playerSprite;
     private const float _spriteScale = 1.5f;
+
+    //Attack properties
+    private Hurtbox _attackHurtbox;
+    private const float _attackDamage = 25f;
+    private const float _attackKnockback = 200f;
+
+    //Knockback from getting damaged
+    private float _currentKnockback;
+    private Vector2 _knockbackDirection;
+    private const float _knockbackFriction = 50;
 
     private TimeSpan _animationDuration = TimeSpan.FromSeconds(0.175);
 
@@ -51,7 +82,7 @@ public class Player : Entity
     {   
         base.Initialize(new Vector2(450, 270), scene);
         _dir = new Vector2(1, 1);
-        _characterState = CharacterState.Idle;
+        characterState = CharacterState.Idle;
 
     }
 
@@ -76,7 +107,22 @@ public class Player : Entity
     {
         _playerSprite.Update(gameTime);
 
+        if (characterState == CharacterState.Damaged) { 
+            if (_currentKnockback > 0)
+            {
+                Position -= _knockbackDirection * _currentKnockback * (float)gameTime.ElapsedGameTime.TotalSeconds;
+                _currentKnockback -= _knockbackFriction; //Add friction
+            }
+
+            return;
+        }
         handleInput(gameTime);
+
+        //Handle health
+        if (_currentHealth > _maxHealth)
+        {
+            _currentHealth = _maxHealth;
+        }
 
         //Update bounds position
         Bounds.Position = Position + hitboxOffset;
@@ -129,6 +175,14 @@ public class Player : Entity
                    .AddFrame("adventurer-attack3-05", _animationDuration);
         });
 
+        _playerSpriteSheet.DefineAnimation("hurt", builder =>
+        {
+            builder.IsLooping(false)
+                   .AddFrame("adventurer-hurt-00", _animationDuration)
+                   .AddFrame("adventurer-hurt-01", _animationDuration)
+                   .AddFrame("adventurer-hurt-02", _animationDuration);
+        });
+
 
         _playerSprite = new AnimatedSprite(_playerSpriteSheet, "idle");
 
@@ -142,13 +196,13 @@ public class Player : Entity
             handleMovement(gameTime);
 
         }
-        else if (_characterState == CharacterState.Walking)
+        else if (characterState == CharacterState.Walking)
         {
-            _playerSprite.SetAnimation("idle");
-            _characterState = CharacterState.Idle;
+            characterState = CharacterState.Idle;
         }
 
         if (GameController.Attack()) { 
+
             handleAttack();
 
         }
@@ -192,12 +246,8 @@ public class Player : Entity
         var deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
         Vector2 nextPositionVector = _dir * _speed * deltaTime;
 
-        if (_characterState != CharacterState.Walking)
-        {
-            _characterState = CharacterState.Walking;
-            _playerSprite.SetAnimation("walk");
-        }
-        _oldPosition = Position;
+        characterState = CharacterState.Walking;
+
         Position += nextPositionVector;
 
         _dir = Vector2.Zero;
@@ -206,33 +256,109 @@ public class Player : Entity
 
     private void handleAttack()
     {
-        _characterState = CharacterState.Attacking;
 
-        // Subscribe to the event with our handler
-        _playerSprite.SetAnimation("attack").OnAnimationEvent += (IAnimationController animSender, AnimationEventTrigger trigger) =>
-        {
-            if (trigger == AnimationEventTrigger.AnimationCompleted)
-            {
-                // Important: Unregister the handler first to prevent accumulation
-                _playerSprite.SetAnimation("idle");
-            }
+        characterState = CharacterState.Attacking;
 
-        };
 
     }
 
     public override void OnCollision(CollisionEventArgs collisionInfo)
     {
 
-        Bounds.Position -= collisionInfo.PenetrationVector;
-
-        Position -= collisionInfo.PenetrationVector;
-
-        if (_characterState == CharacterState.Walking && _oldPosition == Position)
+        if (collisionInfo.Other is Enemy && characterState != CharacterState.Damaged)
         {
-            _playerSprite.SetAnimation("idle");
-            _characterState = CharacterState.Idle;
+            takeDamage(collisionInfo);
         }
+        else if (collisionInfo.Other is Prop || collisionInfo.Other is CollisionObject) 
+        {
+
+            Bounds.Position -= collisionInfo.PenetrationVector;
+            Position -= collisionInfo.PenetrationVector;
+
+            if (characterState == CharacterState.Walking)
+            {
+                characterState = CharacterState.Idle;
+            }
+
+        }
+    }
+
+    private void takeDamage(CollisionEventArgs collisionInfo)
+    {
+
+        _currentHealth -= ((Enemy)collisionInfo.Other).enemyDamage;
+        characterState = CharacterState.Damaged;
+
+        _currentKnockback = ((Enemy)collisionInfo.Other).damageKnockback;
+        _knockbackDirection = collisionInfo.PenetrationVector.NormalizedCopy();
+
+        _playerSprite.Color = Color.Red;
+
+    }
+
+    private void OnStateChanged(CharacterState newState)
+    {
+        // Handle state changes (mainly for animations)
+
+        // If we had an active attack hurtbox, remove it when changing states to avoid staying active after the attack animation finishes
+        if (_attackHurtbox != null)
+        {
+            ((MainGameScene)currentScene).RemoveEntity(_attackHurtbox);
+        }
+        
+        switch (newState)
+        {
+            case CharacterState.Idle:
+                _playerSprite.SetAnimation("idle");
+
+                break;
+
+            case CharacterState.Walking:
+                _playerSprite.SetAnimation("walk");
+
+                break;
+            case CharacterState.Attacking:
+                // Subscribe to the event with our handler
+                _playerSprite.SetAnimation("attack").OnAnimationEvent += (IAnimationController animSender, AnimationEventTrigger trigger) =>
+                {
+                    if (trigger == AnimationEventTrigger.AnimationCompleted)
+                    {
+                        characterState = CharacterState.Idle;
+
+
+                    }
+                    else if (trigger == AnimationEventTrigger.FrameBegin)
+                    {
+                        // Check if we're on the frame where the attack should hit
+                        if (animSender.CurrentFrame == 13) 
+                        {
+                            //Activate attack hurtbox
+                            int xOffset = _playerSprite.Effect == SpriteEffects.FlipHorizontally ? -45 : 10; // Adjust the offset based on the facing direction
+                            _attackHurtbox = new Hurtbox(new RectangleF(Position + new Vector2(xOffset, - 10), new SizeF(35, 40)), false, _attackDamage, _attackKnockback);
+                            ((MainGameScene)currentScene).AddEntity(_attackHurtbox);
+                        }
+                    }
+
+
+                };
+                break;
+            case CharacterState.Damaged:
+                _playerSprite.SetAnimation("hurt").OnAnimationEvent += (IAnimationController animSender, AnimationEventTrigger trigger) =>
+                {
+                    if (trigger == AnimationEventTrigger.AnimationCompleted)
+                    {
+                        _playerSprite.Color = Color.White;
+                        characterState = CharacterState.Idle;
+                    }
+
+                };
+                break;
+
+
+            default: break;
+          
+        }
+
 
     }
 

@@ -45,7 +45,7 @@ public abstract class Entity : ICollisionActor
 
         //Draw collision bounds for debugging purposes
 
-        Core.SpriteBatch.DrawRectangle((RectangleF)Bounds, Color.Red, 1, depth + 0.01f);
+        //Core.SpriteBatch.DrawRectangle((RectangleF)Bounds, Color.Red, 1, depth + 0.01f);
 
     }
 

@@ -34,7 +34,12 @@ public class MainGameScene : Scene
     public Map currentMap { get; private set; }
     private GameWindow _window;
 
+    //Entities
     private List<Entity> _entities;
+    private List<Entity> _entitesToAdd;
+    private List<Entity> _entitesToRemove;
+
+
     private CollisionComponent _collisionComponent;
 
     //UI Manager
@@ -80,6 +85,9 @@ public class MainGameScene : Scene
         _player = new Player();
 
         _entities = new List<Entity>();
+        _entitesToAdd = new List<Entity>();
+        _entitesToRemove = new List<Entity>();
+
         _entities.Add(_player);
 
         //Inicializar props del mapa
@@ -89,7 +97,7 @@ public class MainGameScene : Scene
         //Test enemy
 
         Enemy enemy = new Goblin();
-        enemy.Initialize(new Vector2(400, 200), this);
+        enemy.Initialize(new Vector2(380, 200), this);
         _entities.Add(enemy);
 
 
@@ -124,6 +132,25 @@ public class MainGameScene : Scene
 
             entity.Update(gameTime);
 
+        }
+
+        //Check if there are any new entites to add or remove and update the main list accordingly
+        if (_entitesToAdd.Count != 0)
+        {   
+            _entities.AddRange(_entitesToAdd);
+            _entitesToAdd.Clear();
+        }
+        if (_entitesToRemove.Count != 0)
+        {
+            foreach (Entity entity in _entitesToRemove)
+            {
+                if (_entities.Contains(entity))
+                {
+                    _entities.Remove(entity);
+
+                }
+            }
+            _entitesToRemove.Clear();
         }
 
         currentMap.Update(gameTime);
@@ -177,14 +204,14 @@ public class MainGameScene : Scene
 
     public void AddEntity(Entity entity)
     {
-        _entities.Add(entity);
+        _entitesToAdd.Add(entity);
         entity.LoadContent();
         _collisionComponent.Insert(entity);
     }
 
     public void RemoveEntity(Entity entity)
     {
-        _entities.Remove(entity);
+        _entitesToRemove.Add(entity);
         _collisionComponent.Remove(entity);
     }
 

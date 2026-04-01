@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using MonoGame.Extended;
+using MonoGame.Extended.Collisions;
 using MonoGame.Extended.Graphics;
 using MonoGameLibrary;
 using PilotGame.Controllers;
@@ -8,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static PilotGame.GameObjects.Player;
 
 namespace PilotGame.GameObjects.Enemies;
 
@@ -23,6 +25,10 @@ public class Goblin : Enemy
     public override void LoadContent()
     {
         base.LoadContent();
+
+        //Set stats
+        enemyHealth = 60f;
+        enemyDamage = 10f;
 
         enemySpriteAtlas = Core.Content.Load<Texture2DAtlas>("images/enemy1");
         enemySpriteSheet = new SpriteSheet("images/enemy1-texture", enemySpriteAtlas);
@@ -65,6 +71,74 @@ public class Goblin : Enemy
                    .AddFrame("enemy1024", _animationDuration); ;
         });
 
+        enemySpriteSheet.DefineAnimation("attack", builder =>
+        {
+            builder.IsLooping(false)
+                   .AddFrame("enemy1034", _animationDuration)
+                   .AddFrame("enemy1035", _animationDuration)
+                   .AddFrame("enemy1036", _animationDuration)
+                   .AddFrame("enemy1037", _animationDuration)
+                   .AddFrame("enemy1038", _animationDuration)
+                   .AddFrame("enemy1039", _animationDuration)
+                   .AddFrame("enemy1040", _animationDuration)
+                   .AddFrame("enemy1041", _animationDuration)
+                   .AddFrame("enemy1042", _animationDuration)
+                   .AddFrame("enemy1043", _animationDuration)
+                   .AddFrame("enemy1044", _animationDuration)
+                   .AddFrame("enemy1045", _animationDuration)
+                   .AddFrame("enemy1046", _animationDuration)
+                   .AddFrame("enemy1047", _animationDuration)
+                   .AddFrame("enemy1048", _animationDuration)
+                   .AddFrame("enemy1049", _animationDuration)
+                   .AddFrame("enemy1050", _animationDuration);
+        });
+
+        enemySpriteSheet.DefineAnimation("hurt", builder =>
+        {
+            builder.IsLooping(false)
+                   .AddFrame("enemy1068", _animationDuration)
+                   .AddFrame("enemy1069", _animationDuration)
+                   .AddFrame("enemy1070", _animationDuration)
+                   .AddFrame("enemy1071", _animationDuration)
+                   .AddFrame("enemy1072", _animationDuration)
+                   .AddFrame("enemy1073", _animationDuration)
+                   .AddFrame("enemy1074", _animationDuration)
+                   .AddFrame("enemy1075", _animationDuration);
+        });
+
+        enemySpriteSheet.DefineAnimation("death", builder =>
+        {
+            builder.IsLooping(false)
+                    .AddFrame("enemy1085", _animationDuration)
+                    .AddFrame("enemy1086", _animationDuration)
+                    .AddFrame("enemy1087", _animationDuration)
+                    .AddFrame("enemy1088", _animationDuration)
+                    .AddFrame("enemy1089", _animationDuration)
+                    .AddFrame("enemy1090", _animationDuration)
+                    .AddFrame("enemy1091", _animationDuration)
+                    .AddFrame("enemy1092", _animationDuration)
+                    .AddFrame("enemy1093", _animationDuration)
+                    .AddFrame("enemy1094", _animationDuration)
+                    .AddFrame("enemy1095", _animationDuration)
+                    .AddFrame("enemy1096", _animationDuration)
+                    .AddFrame("enemy1097", _animationDuration);
+            ;
+        });
+
+
+
         enemySprite = new AnimatedSprite(enemySpriteSheet, "idle");
     }
+
+    public override void Update(GameTime gameTime)
+    {
+        base.Update(gameTime);
+        if (enemyHealth <= 0)
+        {
+            handleDeath();
+        }
+
+    }
+
+
 }
