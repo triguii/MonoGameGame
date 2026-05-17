@@ -1,6 +1,6 @@
-# Mono game project
+# Mono game playground
 
-My current project to learn C# and the Monogame framework. The project is a simple 2D action game, but I intend to keep working on it adding new features.
+My current simple project to learn C# and the Monogame framework. The project is a simple 2D action game, but I intend to keep working on it adding new features.
 
 Assets used made by: 
 
