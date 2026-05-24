@@ -9,3 +9,7 @@ Assets used made by:
   ·  rvros (https://rvros.itch.io/)
 
 Currently working on implementing the new collision system of Monogame.Extended (https://www.monogameextended.net/) to improve performance.
+
+
+<img width="1265" height="709" alt="Captura de pantalla 2026-05-17 212934" src="https://github.com/user-attachments/assets/545c176a-02f1-483f-a778-de9a65ef875d" />
+
